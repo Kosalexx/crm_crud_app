@@ -23,10 +23,11 @@ jobs:
           # Install uv (dependency manager) and sync project dependencies
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install uv
-          uv sync
+          uv sync --dev
       - name: Run tests
         run: |
-          pytest -q
+          # Use module invocation to avoid relying on PATH for installed console scripts
+          python -m pytest -q
 
   deploy:
     runs-on: ubuntu-latest
