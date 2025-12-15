@@ -1,0 +1,78 @@
+name: Deploy Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies (using uv)
+        run: |
+          # Install uv (dependency manager) and sync project dependencies
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install uv
+          uv sync
+      - name: Run tests
+        run: |
+          pytest -q
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Deploy to production server
+        uses: appleboy/ssh-action@master
+        with:
+          timeout: 15m
+          command_timeout: 10m
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            echo "Starting deployment..."
+            cd /home/crm_crud_app
+
+            # Получение последних изменений
+            echo "Pulling latest changes from main..."
+            git checkout main
+            git pull
+
+            # Создание .env файла
+            echo "Creating .env file..."
+            rm -f .env
+            touch .env
+            # Запись переменных окружения в .env
+            echo "PORT=${{ vars.PORT }}" >> .env
+            echo "RETAIL_CRM_API_PREFIX=${{ vars.RETAIL_CRM_API_PREFIX }}" >> .env
+            echo "RETAIL_CRM_URL=${{ secrets.RETAIL_CRM_URL }}" >> .env
+            echo "RETAIL_CRM_API_KEY=${{ secrets.RETAIL_CRM_API_KEY }}" >> .env
+            echo "LOG_LEVEL=${{ vars.LOG_LEVEL }}" >> .env
+
+            # Пересборка и перезапуск контейнеров
+            echo "Building and restarting containers..."
+            docker-compose -f docker-compose.prod.yaml build
+            docker-compose -f docker-compose.prod.yaml down
+            docker-compose -f docker-compose.prod.yaml up -d
+
+            # Очистка неиспользуемых образов
+            echo "Cleaning up unused Docker images..."
+            docker system prune -a -f
+
+            # Очистка .env для безопасности
+            echo "Clearing .env file..."
+            cat /dev/null > .env
+
+            echo "Deployment completed successfully!"
