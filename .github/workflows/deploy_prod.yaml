@@ -26,8 +26,7 @@ jobs:
           uv sync --dev
       - name: Run tests
         run: |
-          # Use module invocation to avoid relying on PATH for installed console scripts
-          python -m pytest -q
+          uv run pytest -q
 
   deploy:
     runs-on: ubuntu-latest
