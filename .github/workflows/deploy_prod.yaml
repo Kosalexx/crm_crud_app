@@ -63,9 +63,9 @@ jobs:
 
             # Пересборка и перезапуск контейнеров
             echo "Building and restarting containers..."
-            docker-compose -f docker-compose.prod.yaml build
-            docker-compose -f docker-compose.prod.yaml down
-            docker-compose -f docker-compose.prod.yaml up -d
+            docker-compose -f docker-compose.yaml build
+            docker-compose -f docker-compose.yaml down
+            docker-compose -f docker-compose.yaml up -d
 
             # Очистка неиспользуемых образов
             echo "Cleaning up unused Docker images..."
