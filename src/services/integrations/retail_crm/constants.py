@@ -1,4 +1,4 @@
-from enum import StrEnum, Enum
+from enum import StrEnum
 from typing import Any
 from src.core.config import settings
 
@@ -17,7 +17,6 @@ class RetailCRMEndpoint(StrEnum):
         return self.value.format(**kwargs)
 
 
-class RetailCRMConstants(str, Enum):
-    URL = settings.RETAIL_CRM_URL
-    API_KEY = settings.RETAIL_CRM_API_KEY
-    PREFIX = settings.RETAIL_CRM_API_PREFIX
+URL = settings.RETAIL_CRM_URL
+API_KEY = settings.RETAIL_CRM_API_KEY
+PREFIX = settings.RETAIL_CRM_API_PREFIX

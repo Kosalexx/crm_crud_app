@@ -19,7 +19,9 @@ from src.schemas.orders import (
 from src.schemas.payments import PaymentCreateSchema, PaymentResponseSchema
 from src.services.integrations.retail_crm.constants import (
     RetailCRMEndpoint as E,
-    RetailCRMConstants as C,
+    API_KEY,
+    URL,
+    PREFIX,
 )
 from src.services.integrations.constants_base import HTTPMethod
 
@@ -32,8 +34,8 @@ class RetailCRMService(BaseCRMService):
     """
 
     def __init__(self):
-        self.api_key = C.API_KEY
-        super().__init__(api_url=C.URL + C.PREFIX, timeout=30.0)
+        self.api_key = API_KEY
+        super().__init__(api_url=URL + PREFIX, timeout=30.0)
         logger.debug(f"RetailCRMService initialized with API URL: {self.api_url}")
 
     def _prepare_request_params(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
